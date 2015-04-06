@@ -26,7 +26,7 @@ class CASino::AuthTokensController < CASino::ApplicationController
 
   def base64_decode(data)
     begin
-      Base64.strict_decode64(data)
+      Base64.urlsafe_decode64(data)
     rescue
       ''
     end
