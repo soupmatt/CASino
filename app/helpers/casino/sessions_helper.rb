@@ -39,7 +39,7 @@ module CASino::SessionsHelper
   end
 
   def set_tgt_cookie(tgt)
-    cookies[:tgt] = { value: tgt.ticket }.tap do |cookie|
+    cookies[:tgt] = { value: tgt.ticket, httponly: true}.tap do |cookie|
       if tgt.long_term?
         cookie[:expires] = CASino.config.ticket_granting_ticket[:lifetime_long_term].seconds.from_now
       end
