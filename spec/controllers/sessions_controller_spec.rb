@@ -258,6 +258,24 @@ describe CASino::SessionsController do
             tgt = CASino::TicketGrantingTicket.last
             tgt.long_term.should == true
           end
+
+          it 'creates a cookie that is not httponly by default' do
+            post :create, params
+            controller.cookies['tgt']['httponly'].should be(false)
+          end
+
+          context 'when we are configured for http_only_tgt_cookies' do
+            before do
+              CASino.config.httponly_tgt_cookies = true
+            end
+            after do
+              CASino.config.httponly_tgt_cookies = false
+            end
+            it 'creates an httponly cookie' do
+              post :create, params
+              controller.cookies['tgt']['httponly'].should be(true)
+            end
+          end
         end
 
         context 'with two-factor authentication enabled' do
@@ -397,12 +415,6 @@ describe CASino::SessionsController do
           it 'does activate the ticket-granting ticket' do
             post :validate_otp, params
             ticket_granting_ticket.reload.should_not be_awaiting_two_factor_authentication
-          end
-
-          it 'creates an httponly cookie' do
-            controller.stub(:cookies).and_return(HashWithIndifferentAccess.new)
-            post :validate_otp, params
-            controller.cookies['tgt']['httponly'].should be(true)
           end
 
           context 'with a long-term ticket-granting ticket' do
